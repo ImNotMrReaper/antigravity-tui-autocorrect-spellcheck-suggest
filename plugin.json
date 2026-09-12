@@ -1,0 +1,8 @@
+{
+  "name": "tui-autocomplete",
+  "version": "1.0.0",
+  "description": "Suggestive text, inline autocompletion, and spellchecker/autocorrect engine for Antigravity interactive sessions.",
+  "author": "Mr. Reaper",
+  "skills": ["tui-autocomplete-suggest"],
+  "rules": ["GEMINI.md"]
+}
