@@ -1,8 +1,7 @@
 {
   "name": "tui-autocomplete",
-  "version": "1.0.0",
-  "description": "Suggestive text, inline autocompletion, and spellchecker/autocorrect engine for Antigravity interactive sessions.",
+  "version": "1.1.0",
+  "description": "Suggestive text, inline autocompletion, slash command templates, and spellchecker/autocorrect engine for Antigravity sessions.",
   "author": "Mr. Reaper",
-  "skills": ["tui-autocomplete-suggest"],
-  "rules": ["GEMINI.md"]
+  "homepage": "https://github.com/ImNotMrReaper/tui-autocomplete"
 }
