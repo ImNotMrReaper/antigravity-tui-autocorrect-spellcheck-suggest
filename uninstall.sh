@@ -12,13 +12,14 @@ GREEN="\033[92m"
 CYAN="\033[96m"
 RESET="\033[0m"
 
-echo -e "${CYAN}>>> Uninstalling Antigravity TUI Autocorrect, Spell Checker & Suggestive Text Engine...${RESET}"
+echo -e "${CYAN}>>> Uninstalling agy-suggest: Antigravity TUI Autocorrect, Spell Checker & Suggestive Text Engine...${RESET}"
 
+rm -rf "${HOME}/.gemini/config/plugins/agy-suggest"
 rm -rf "${HOME}/.gemini/config/plugins/tui-autocomplete"
 rm -rf "${HOME}/.gemini/config/plugins/antigravity-tui-autocorrect-spellcheck-suggest"
 rm -rf "${HOME}/.agents/skills/tui-autocomplete-suggest"
 
-for cmd in tui-autocorrect antigravity-tui-autocorrect agy-autocorrect; do
+for cmd in tui-autocorrect antigravity-tui-autocorrect agy-autocorrect agy-suggest; do
     if [ -f "/usr/local/bin/$cmd" ]; then
         if [ -w "/usr/local/bin" ] || [ "$(id -u)" -eq 0 ]; then
             rm -f "/usr/local/bin/$cmd"

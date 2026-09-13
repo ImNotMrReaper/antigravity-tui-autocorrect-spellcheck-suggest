@@ -1,7 +1,8 @@
 {
-  "name": "antigravity-tui-autocorrect-spellcheck-suggest",
-  "version": "1.2.0",
+  "name": "agy-suggest",
+  "version": "1.3.0",
   "description": "Antigravity TUI Autocorrect, Spell Checker & Suggestive Text Engine. Real-time inline grey ghost-text completion, Tab/Right-Arrow acceptance, Levenshtein distance spellchecking, and interactive PTY supervisor.",
   "author": "Mr. Reaper",
-  "homepage": "https://github.com/ImNotMrReaper/antigravity-tui-autocorrect-spellcheck-suggest"
+  "homepage": "https://github.com/ImNotMrReaper/agy-suggest"
 }
+
