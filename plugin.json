@@ -1,7 +1,7 @@
 {
-  "name": "tui-autocomplete",
-  "version": "1.1.0",
-  "description": "Suggestive text, inline autocompletion, slash command templates, and spellchecker/autocorrect engine for Antigravity sessions.",
+  "name": "antigravity-tui-autocorrect-spellcheck-suggest",
+  "version": "1.2.0",
+  "description": "Antigravity TUI Autocorrect, Spell Checker & Suggestive Text Engine. Real-time inline grey ghost-text completion, Tab/Right-Arrow acceptance, Levenshtein distance spellchecking, and interactive PTY supervisor.",
   "author": "Mr. Reaper",
-  "homepage": "https://github.com/ImNotMrReaper/tui-autocomplete"
+  "homepage": "https://github.com/ImNotMrReaper/antigravity-tui-autocorrect-spellcheck-suggest"
 }

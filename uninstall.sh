@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Antigravity TUI Autocomplete Clean Uninstaller
+# Antigravity TUI Autocorrect, Spell Checker & Suggestive Text Engine Clean Uninstaller
 # Remote 1-Liner:
-#   curl -fsSL https://raw.githubusercontent.com/ImNotMrReaper/tui-autocomplete/main/uninstall.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/ImNotMrReaper/antigravity-tui-autocorrect-spellcheck-suggest/main/uninstall.sh | bash
 # ==============================================================================
 
 set -e
@@ -12,19 +12,22 @@ GREEN="\033[92m"
 CYAN="\033[96m"
 RESET="\033[0m"
 
-echo -e "${CYAN}>>> Uninstalling Antigravity TUI Autocomplete...${RESET}"
+echo -e "${CYAN}>>> Uninstalling Antigravity TUI Autocorrect, Spell Checker & Suggestive Text Engine...${RESET}"
 
 rm -rf "${HOME}/.gemini/config/plugins/tui-autocomplete"
+rm -rf "${HOME}/.gemini/config/plugins/antigravity-tui-autocorrect-spellcheck-suggest"
 rm -rf "${HOME}/.agents/skills/tui-autocomplete-suggest"
 
-if [ -f "/usr/local/bin/tui-autocorrect" ]; then
-    if [ -w "/usr/local/bin" ] || [ "$(id -u)" -eq 0 ]; then
-        rm -f "/usr/local/bin/tui-autocorrect"
-    elif command -v sudo >/dev/null 2>&1; then
-        sudo rm -f "/usr/local/bin/tui-autocorrect"
+for cmd in tui-autocorrect antigravity-tui-autocorrect agy-autocorrect; do
+    if [ -f "/usr/local/bin/$cmd" ]; then
+        if [ -w "/usr/local/bin" ] || [ "$(id -u)" -eq 0 ]; then
+            rm -f "/usr/local/bin/$cmd"
+        elif command -v sudo >/dev/null 2>&1; then
+            sudo rm -f "/usr/local/bin/$cmd"
+        fi
     fi
-fi
-rm -f "${HOME}/.local/bin/tui-autocorrect"
+    rm -f "${HOME}/.local/bin/$cmd"
+done
 rm -f "${HOME}/.local/bin/agy-tui"
 
 # Restore original agy binary if wrapped
@@ -33,4 +36,4 @@ if [ -f "${HOME}/.local/bin/agy.real" ]; then
     echo -e "    ${GREEN}✓ Restored original AGY binary:${RESET} ${HOME}/.local/bin/agy"
 fi
 
-echo -e "${GREEN}✓ Antigravity TUI Autocomplete cleanly uninstalled.${RESET}\n"
+echo -e "${GREEN}✓ Antigravity TUI Autocorrect, Spell Checker & Suggestive Text Engine cleanly uninstalled.${RESET}\n"

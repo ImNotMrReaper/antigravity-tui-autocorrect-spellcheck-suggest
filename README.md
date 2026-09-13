@@ -1,6 +1,6 @@
-# Antigravity TUI Autocomplete & Suggestive Text Engine
+# Antigravity TUI Autocorrect, Spell Checker & Suggestive Text Engine
 
-Fast inline predictive autosuggestion, Levenshtein distance spellchecking/autocorrect, and slash command auto-expansion for Antigravity interactive CLI and terminal pair-programming sessions.
+Fast inline predictive autosuggestion, grey ghost-text completion (`ble.sh` parity), Levenshtein distance spellchecking/autocorrect, and slash command auto-expansion for Antigravity interactive CLI and terminal pair-programming sessions.
 
 ## Features
 - **Inline Grey Ghost-Text Prediction (ble.sh Parity):** Evaluates typed sequences in real time and renders low-contrast dimmed ghost text ahead of the cursor.
@@ -16,13 +16,13 @@ Fast inline predictive autosuggestion, Levenshtein distance spellchecking/autoco
 Install the Antigravity plugin, agent skill, terminal CLI tool, and AGY TUI supervisor with a single command:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/ImNotMrReaper/tui-autocomplete/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/ImNotMrReaper/antigravity-tui-autocorrect-spellcheck-suggest/main/install.sh | bash
 ```
 
 ### Manual Installation
 ```bash
-git clone https://github.com/ImNotMrReaper/tui-autocomplete.git
-cd tui-autocomplete
+git clone https://github.com/ImNotMrReaper/antigravity-tui-autocorrect-spellcheck-suggest.git
+cd antigravity-tui-autocorrect-spellcheck-suggest
 ./install.sh
 ```
 

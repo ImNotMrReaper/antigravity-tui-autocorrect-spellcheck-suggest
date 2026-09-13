@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Antigravity TUI Autocomplete & Suggestive Text Engine Installer
+# Antigravity TUI Autocorrect, Spell Checker & Suggestive Text Engine Installer
 # Remote 1-Liner:
-#   curl -fsSL https://raw.githubusercontent.com/ImNotMrReaper/tui-autocomplete/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/ImNotMrReaper/antigravity-tui-autocorrect-spellcheck-suggest/main/install.sh | bash
 # ==============================================================================
 
 set -e
@@ -17,7 +17,7 @@ RED="\033[91m"
 RESET="\033[0m"
 
 echo -e "${PURPLE}================================================================${RESET}"
-echo -e "${BOLD} ⚡ Antigravity TUI Autocomplete & Suggestive Text Engine${RESET}"
+echo -e "${BOLD} ⚡ Antigravity TUI Autocorrect, Spell Checker & Suggestive Text Engine${RESET}"
 echo -e "${PURPLE}================================================================${RESET}\n"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)"
@@ -25,7 +25,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)"
 # Auto-clone repository if executed directly from curl/pipe
 if [ ! -d "${SCRIPT_DIR}/scripts" ] || [ ! -f "${SCRIPT_DIR}/scripts/tui_autocorrect.py" ]; then
     echo -e "${CYAN}>>> Running from remote pipe. Cloning latest repository...${RESET}"
-    TMP_CLONE="$(mktemp -d /tmp/tui-autocomplete-install.XXXXXX)"
+    TMP_CLONE="$(mktemp -d /tmp/agy-autocorrect-install.XXXXXX)"
     if ! command -v git >/dev/null 2>&1; then
         echo ">>> Installing git..."
         if command -v apt-get >/dev/null 2>&1; then
@@ -38,7 +38,7 @@ if [ ! -d "${SCRIPT_DIR}/scripts" ] || [ ! -f "${SCRIPT_DIR}/scripts/tui_autocor
             if [ "$(id -u)" -eq 0 ]; then zypper --non-interactive install git; else sudo zypper --non-interactive install git; fi
         fi
     fi
-    git clone --depth 1 https://github.com/ImNotMrReaper/tui-autocomplete.git "${TMP_CLONE}"
+    git clone --depth 1 https://github.com/ImNotMrReaper/antigravity-tui-autocorrect-spellcheck-suggest.git "${TMP_CLONE}"
     SCRIPT_DIR="${TMP_CLONE}"
     trap "rm -rf '${TMP_CLONE}'" EXIT
 fi
@@ -97,10 +97,14 @@ chmod +x /tmp/tui-autocorrect-wrapper
 
 if [ -w "$(dirname "$CLI_TARGET")" ]; then
     mv /tmp/tui-autocorrect-wrapper "$CLI_TARGET"
+    ln -sf "$CLI_TARGET" "$(dirname "$CLI_TARGET")/antigravity-tui-autocorrect" 2>/dev/null || true
+    ln -sf "$CLI_TARGET" "$(dirname "$CLI_TARGET")/agy-autocorrect" 2>/dev/null || true
 else
     sudo mv /tmp/tui-autocorrect-wrapper "$CLI_TARGET"
+    sudo ln -sf "$CLI_TARGET" "$(dirname "$CLI_TARGET")/antigravity-tui-autocorrect" 2>/dev/null || true
+    sudo ln -sf "$CLI_TARGET" "$(dirname "$CLI_TARGET")/agy-autocorrect" 2>/dev/null || true
 fi
-echo -e "    ${GREEN}✓ Installed CLI Wrapper:${RESET} ${CLI_TARGET}"
+echo -e "    ${GREEN}✓ Installed CLI Commands:${RESET} ${CLI_TARGET}, antigravity-tui-autocorrect, agy-autocorrect"
 
 # Install agy-tui and agy supervisor wrapper if agy is present
 AGY_BIN="${HOME}/.local/bin/agy"
@@ -156,14 +160,14 @@ if [ -f "$AGY_BIN" ]; then
 fi
 
 echo -e "\n${GREEN}================================================================${RESET}"
-echo -e "${GREEN} 🎉 TUI AUTOCOMPLETE ENGINE INSTALLED SUCCESSFULLY!${RESET}"
+echo -e "${GREEN} 🎉 ANTIGRAVITY TUI AUTOCORRECT, SPELL CHECKER & SUGGESTIVE TEXT ENGINE INSTALLED!${RESET}"
 echo -e "${GREEN}================================================================${RESET}"
 echo -e "Features active:"
 echo -e "  • Antigravity Plugin:  ${PLUGIN_DIR}"
 echo -e "  • Agent Skill:         ${SKILLS_DIR}"
-echo -e "  • Terminal CLI Tool:   ${CLI_TARGET}"
+echo -e "  • Terminal CLI Tools:  ${CLI_TARGET}, antigravity-tui-autocorrect, agy-autocorrect"
 echo -e "  • AGY TUI Supervisor:  ${AGY_TUI} -> ${AGY_BIN}"
 echo -e ""
 echo -e "Quick Test:"
-echo -e "  ${PURPLE}tui-autocorrect tehn antigravty autocompleate suod reusme${RESET}"
+echo -e "  ${PURPLE}antigravity-tui-autocorrect tehn antigravty autocompleate suod reusme${RESET}"
 echo -e "  Output: ${GREEN}then antigravity autocomplete sudo resume${RESET}\n"
