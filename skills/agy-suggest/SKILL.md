@@ -1,5 +1,5 @@
 ---
-name: tui-autocomplete-suggest
+name: agy-suggest
 description: >-
   Architectural specification and runbook for Antigravity TUI predictive autosuggestion,
   inline ghost-text autocompletion, slash command quick-templates, and fuzzy Levenshtein
@@ -46,9 +46,9 @@ This skill provides bidirectional typing assistance, fuzzy Levenshtein spellchec
 
 ## 3. Configuration & Paths
 
-- **Plugin Home:** `~/.gemini/config/plugins/tui-autocomplete/`
-- **Plugin Manifest:** `~/.gemini/config/plugins/tui-autocomplete/plugin.json`
-- **Dictionary & Engine:** `~/.gemini/config/plugins/tui-autocomplete/scripts/tui_autocorrect.py`
+- **Plugin Home:** `~/.gemini/config/plugins/agy-suggest/`
+- **Plugin Manifest:** `~/.gemini/config/plugins/agy-suggest/plugin.json`
+- **Dictionary & Engine:** `~/.gemini/config/plugins/agy-suggest/scripts/tui_autocorrect.py`
 - **Editor Integration:** `reaper-notes` (`src/reaper_notes/autocomplete.py`)
 
 ---

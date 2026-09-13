@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Antigravity TUI Autocorrect, Spell Checker & Suggestive Text Engine Installer
+# agy-suggest: Antigravity TUI Autocorrect, Spell Checker & Suggestive Text Engine Installer
 # Remote 1-Liner:
-#   curl -fsSL https://raw.githubusercontent.com/ImNotMrReaper/antigravity-tui-autocorrect-spellcheck-suggest/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/ImNotMrReaper/agy-suggest/main/install.sh | bash
 # ==============================================================================
 
 set -e
@@ -25,7 +25,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)"
 # Auto-clone repository if executed directly from curl/pipe
 if [ ! -d "${SCRIPT_DIR}/scripts" ] || [ ! -f "${SCRIPT_DIR}/scripts/tui_autocorrect.py" ]; then
     echo -e "${CYAN}>>> Running from remote pipe. Cloning latest repository...${RESET}"
-    TMP_CLONE="$(mktemp -d /tmp/agy-autocorrect-install.XXXXXX)"
+    TMP_CLONE="$(mktemp -d /tmp/agy-suggest-install.XXXXXX)"
     if ! command -v git >/dev/null 2>&1; then
         echo ">>> Installing git..."
         if command -v apt-get >/dev/null 2>&1; then
@@ -58,24 +58,20 @@ if ! command -v python3 >/dev/null 2>&1; then
 fi
 
 PLUGIN_DIR="${HOME}/.gemini/config/plugins/agy-suggest"
-SKILLS_DIR="${HOME}/.agents/skills/tui-autocomplete-suggest"
+SKILLS_DIR="${HOME}/.agents/skills/agy-suggest"
 
 echo -e "${CYAN}>>> Installing Antigravity Plugin & Skills...${RESET}"
 mkdir -p "${PLUGIN_DIR}"
 cp -r "${SCRIPT_DIR}/"* "${PLUGIN_DIR}/" 2>/dev/null || true
 
-# Backwards compatibility symlinks
-ln -sfn "${PLUGIN_DIR}" "${HOME}/.gemini/config/plugins/antigravity-tui-autocorrect-spellcheck-suggest" 2>/dev/null || true
-ln -sfn "${PLUGIN_DIR}" "${HOME}/.gemini/config/plugins/tui-autocomplete" 2>/dev/null || true
-
-if [ -d "${SCRIPT_DIR}/skills/tui-autocomplete-suggest" ]; then
+if [ -d "${SCRIPT_DIR}/skills/agy-suggest" ]; then
     mkdir -p "${SKILLS_DIR}"
-    cp -r "${SCRIPT_DIR}/skills/tui-autocomplete-suggest/"* "${SKILLS_DIR}/" 2>/dev/null || true
+    cp -r "${SCRIPT_DIR}/skills/agy-suggest/"* "${SKILLS_DIR}/" 2>/dev/null || true
     echo -e "    ${GREEN}✓ Installed Agent Skill:${RESET} ${SKILLS_DIR}"
 fi
 
 # Install CLI binary wrapper
-echo -e "\n${CYAN}>>> Installing CLI command (tui-autocorrect)...${RESET}"
+echo -e "\n${CYAN}>>> Installing CLI command (tui-autocorrect / agy-suggest)...${RESET}"
 CLI_TARGET=""
 if [ -w "/usr/local/bin" ] || [ "$(id -u)" -eq 0 ]; then
     CLI_TARGET="/usr/local/bin/tui-autocorrect"
@@ -90,16 +86,10 @@ fi
 cat << 'EOF_WRAPPER' > /tmp/tui-autocorrect-wrapper
 #!/usr/bin/env bash
 PLUGIN_SCRIPT="${HOME}/.gemini/config/plugins/agy-suggest/scripts/tui_autocorrect.py"
-if [ ! -f "$PLUGIN_SCRIPT" ]; then
-    PLUGIN_SCRIPT="${HOME}/.gemini/config/plugins/antigravity-tui-autocorrect-spellcheck-suggest/scripts/tui_autocorrect.py"
-fi
-if [ ! -f "$PLUGIN_SCRIPT" ]; then
-    PLUGIN_SCRIPT="${HOME}/.gemini/config/plugins/tui-autocomplete/scripts/tui_autocorrect.py"
-fi
 if [ -f "$PLUGIN_SCRIPT" ]; then
     exec python3 "$PLUGIN_SCRIPT" "$@"
 else
-    echo "Error: tui_autocorrect.py not found" >&2
+    echo "Error: tui_autocorrect.py not found in ~/.gemini/config/plugins/agy-suggest" >&2
     exit 1
 fi
 EOF_WRAPPER
@@ -108,15 +98,13 @@ chmod +x /tmp/tui-autocorrect-wrapper
 if [ -w "$(dirname "$CLI_TARGET")" ]; then
     mv /tmp/tui-autocorrect-wrapper "$CLI_TARGET"
     ln -sf "$CLI_TARGET" "$(dirname "$CLI_TARGET")/agy-suggest" 2>/dev/null || true
-    ln -sf "$CLI_TARGET" "$(dirname "$CLI_TARGET")/antigravity-tui-autocorrect" 2>/dev/null || true
     ln -sf "$CLI_TARGET" "$(dirname "$CLI_TARGET")/agy-autocorrect" 2>/dev/null || true
 else
     sudo mv /tmp/tui-autocorrect-wrapper "$CLI_TARGET"
     sudo ln -sf "$CLI_TARGET" "$(dirname "$CLI_TARGET")/agy-suggest" 2>/dev/null || true
-    sudo ln -sf "$CLI_TARGET" "$(dirname "$CLI_TARGET")/antigravity-tui-autocorrect" 2>/dev/null || true
     sudo ln -sf "$CLI_TARGET" "$(dirname "$CLI_TARGET")/agy-autocorrect" 2>/dev/null || true
 fi
-echo -e "    ${GREEN}✓ Installed CLI Commands:${RESET} ${CLI_TARGET}, agy-suggest, antigravity-tui-autocorrect, agy-autocorrect"
+echo -e "    ${GREEN}✓ Installed CLI Commands:${RESET} ${CLI_TARGET}, agy-suggest, agy-autocorrect"
 
 # Install agy and antigravity smart supervisor wrapper
 AGY_BIN="${HOME}/.local/bin/agy"
@@ -141,10 +129,6 @@ import os
 import sys
 
 SCRIPT = os.path.expanduser("~/.gemini/config/plugins/agy-suggest/scripts/tui_autocorrect.py")
-if not os.path.exists(SCRIPT):
-    SCRIPT = os.path.expanduser("~/.gemini/config/plugins/antigravity-tui-autocorrect-spellcheck-suggest/scripts/tui_autocorrect.py")
-if not os.path.exists(SCRIPT):
-    SCRIPT = os.path.expanduser("~/.gemini/config/plugins/tui-autocomplete/scripts/tui_autocorrect.py")
 
 REAL_AGY = os.path.expanduser("~/.local/bin/agy.real")
 if not os.path.exists(REAL_AGY):
@@ -170,7 +154,6 @@ EOF_AGY
 chmod +x /tmp/agy-wrapper
 mv /tmp/agy-wrapper "${AGY_BIN}"
 ln -sf "${AGY_BIN}" "${ANTIGRAVITY_BIN}"
-ln -sf "${AGY_BIN}" "${HOME}/.local/bin/agy-tui" 2>/dev/null || true
 echo -e "    ${GREEN}✓ Configured Commands:${RESET} ${AGY_BIN} and ${ANTIGRAVITY_BIN}"
 
 echo -e "\n${GREEN}================================================================${RESET}"
@@ -180,8 +163,8 @@ echo -e "Features active:"
 echo -e "  • Antigravity Plugin:  ${PLUGIN_DIR}"
 echo -e "  • Agent Skill:         ${SKILLS_DIR}"
 echo -e "  • Direct Commands:     agy, antigravity"
-echo -e "  • Fast Spellchecker:   tui-autocorrect, agy-autocorrect"
+echo -e "  • Fast Spellchecker:   agy-suggest, tui-autocorrect, agy-autocorrect"
 echo -e ""
 echo -e "Quick Test:"
-echo -e "  ${PURPLE}antigravity-tui-autocorrect tehn antigravty autocompleate suod reusme${RESET}"
+echo -e "  ${PURPLE}agy-suggest tehn antigravty autocompleate suod reusme${RESET}"
 echo -e "  Output: ${GREEN}then antigravity autocomplete sudo resume${RESET}\n"

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Antigravity TUI Autocorrect, Spell Checker & Suggestive Text Engine Clean Uninstaller
+# agy-suggest: Antigravity TUI Autocorrect, Spell Checker & Suggestive Text Engine Clean Uninstaller
 # Remote 1-Liner:
-#   curl -fsSL https://raw.githubusercontent.com/ImNotMrReaper/antigravity-tui-autocorrect-spellcheck-suggest/main/uninstall.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/ImNotMrReaper/agy-suggest/main/uninstall.sh | bash
 # ==============================================================================
 
 set -e
@@ -17,6 +17,10 @@ echo -e "${CYAN}>>> Uninstalling agy-suggest: Antigravity TUI Autocorrect, Spell
 rm -rf "${HOME}/.gemini/config/plugins/agy-suggest"
 rm -rf "${HOME}/.gemini/config/plugins/tui-autocomplete"
 rm -rf "${HOME}/.gemini/config/plugins/antigravity-tui-autocorrect-spellcheck-suggest"
+rm -rf "${HOME}/.gemini/antigravity-cli/plugin_data/agy-suggest"
+rm -rf "${HOME}/.gemini/antigravity-cli/plugin_data/tui-autocomplete"
+rm -rf "${HOME}/.gemini/antigravity-cli/plugin_data/antigravity-tui-autocorrect-spellcheck-suggest"
+rm -rf "${HOME}/.agents/skills/agy-suggest"
 rm -rf "${HOME}/.agents/skills/tui-autocomplete-suggest"
 
 for cmd in tui-autocorrect antigravity-tui-autocorrect agy-autocorrect agy-suggest; do
