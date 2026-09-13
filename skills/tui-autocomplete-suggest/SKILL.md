@@ -19,21 +19,28 @@ This skill provides bidirectional typing assistance, fuzzy spellchecking, and in
    - Evaluates input character sequences against command dictionaries, recent workspace symbols, and active files.
    - Renders low-contrast inline ghost text (dimmed/secondary palette) ahead of the cursor.
    - Accepts completion via <kbd>Tab</kbd> or <kbd>→</kbd> (Right Arrow).
+   - Emulates Bash Line Editor (`ble.sh`) interactive suggestion physics:
+     * Single-keystroke lookahead.
+     * History-based recency weighting.
+     * Ghost-text preview rendering.
 
 2. **Fuzzy Levenshtein Autocorrection:**
    - Corrects common inverted or dropped character typos (distance $\le 2$):
      - `tehn` $\to$ `then`
      - `antigravty` $\to$ `antigravity`
      - `autocompleate` $\to$ `autocomplete`
+     - `seuestive` $\to$ `suggestive`
+     - `termail` $\to$ `terminal`
      - `suod` $\to$ `sudo`
      - `seledt` $\to$ `select`
      - `improt` $\to$ `import`
 
 3. **Slash Command & Directive Expansion:**
-   - Quick-expands `/link`, `/senpai`, `/inbox`, `/voice`, `/goal`, `/plan`, `/grill-me`, `/boost` with parameter templates.
+   - Quick-expands `/link`, `/senpai`, `/inbox`, `/voice`, `/goal`, `/plan`, `/grill-me`, `/boost`, `/learn`, `/deepresearch` with parameter templates.
 
 4. **Codebase Symbol Harvesting:**
    - Periodically caches high-frequency identifier tokens from current workspace git commits and active document buffers to prioritize local project nomenclature.
+
 
 ---
 
