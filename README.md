@@ -8,10 +8,19 @@ Fast inline predictive autosuggestion, Levenshtein distance spellchecking/autoco
 - **Slash Command Expansion:** Instant completion for Antigravity slash directives (`/link`, `/voice`, `/senpai`, `/inbox`, `/goal`, `/plan`, `/grill-me`, `/boost`).
 - **Sub-5ms Execution:** Pure Python zero-dependency engine suitable for interactive terminal environments.
 
-## Installation
-Symlink into Antigravity plugins directory:
+## 🚀 Quick Start (1-Line Installation)
+
+Install the Antigravity plugin, agent skill, and terminal CLI tool with a single command:
+
 ```bash
-ln -s ~/PycharmProjects/tui-autocomplete ~/.gemini/config/plugins/tui-autocomplete
+curl -fsSL https://raw.githubusercontent.com/ImNotMrReaper/tui-autocomplete/main/install.sh | bash
+```
+
+### Manual Installation
+```bash
+git clone https://github.com/ImNotMrReaper/tui-autocomplete.git
+cd tui-autocomplete
+./install.sh
 ```
 
 ## Testing CLI Autocorrect
