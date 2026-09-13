@@ -1,7 +1,53 @@
+# ==============================================================================
+# Sensitive Personal Data, Credentials & User History
+# ==============================================================================
+
+# User Command History, Cached Shell Inputs & Queries
+*.history
+history.json
+command_history*
+*.log
+logs/
+cache/
+.cache/
+scratch/
+tmp/
+temp/
+
+# Environment Variables, Secrets & API Tokens
+.env
+.env.*
+*.env
+*.secret
+*.secrets
+secrets/
+*credential*
+token.json
+*.token
+*.key
+*.pem
+
+# Python Artifacts & Caches
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.swp
+*.swo
+*.bak*
+*~
+.pytest_cache/
+.venv/
+venv/
+build/
+dist/
+
+# Local Databases
+*.db
+*.sqlite*
+
+# IDE, Editor & OS Artifacts
 .idea/
 .vscode/
-*~
+.DS_Store
+Thumbs.db
+.agy_link/
