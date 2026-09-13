@@ -57,12 +57,15 @@ if ! command -v python3 >/dev/null 2>&1; then
     fi
 fi
 
-PLUGIN_DIR="${HOME}/.gemini/config/plugins/tui-autocomplete"
+PLUGIN_DIR="${HOME}/.gemini/config/plugins/antigravity-tui-autocorrect-spellcheck-suggest"
 SKILLS_DIR="${HOME}/.agents/skills/tui-autocomplete-suggest"
 
 echo -e "${CYAN}>>> Installing Antigravity Plugin & Skills...${RESET}"
 mkdir -p "${PLUGIN_DIR}"
 cp -r "${SCRIPT_DIR}/"* "${PLUGIN_DIR}/" 2>/dev/null || true
+
+# Backwards compatibility symlink
+ln -sfn "${PLUGIN_DIR}" "${HOME}/.gemini/config/plugins/tui-autocomplete" 2>/dev/null || true
 
 if [ -d "${SCRIPT_DIR}/skills/tui-autocomplete-suggest" ]; then
     mkdir -p "${SKILLS_DIR}"
@@ -85,11 +88,14 @@ fi
 
 cat << 'EOF_WRAPPER' > /tmp/tui-autocorrect-wrapper
 #!/usr/bin/env bash
-PLUGIN_SCRIPT="${HOME}/.gemini/config/plugins/tui-autocomplete/scripts/tui_autocorrect.py"
+PLUGIN_SCRIPT="${HOME}/.gemini/config/plugins/antigravity-tui-autocorrect-spellcheck-suggest/scripts/tui_autocorrect.py"
+if [ ! -f "$PLUGIN_SCRIPT" ]; then
+    PLUGIN_SCRIPT="${HOME}/.gemini/config/plugins/tui-autocomplete/scripts/tui_autocorrect.py"
+fi
 if [ -f "$PLUGIN_SCRIPT" ]; then
     exec python3 "$PLUGIN_SCRIPT" "$@"
 else
-    echo "Error: tui_autocorrect.py not found at $PLUGIN_SCRIPT" >&2
+    echo "Error: tui_autocorrect.py not found" >&2
     exit 1
 fi
 EOF_WRAPPER
@@ -106,30 +112,38 @@ else
 fi
 echo -e "    ${GREEN}✓ Installed CLI Commands:${RESET} ${CLI_TARGET}, antigravity-tui-autocorrect, agy-autocorrect"
 
-# Install agy-tui and agy supervisor wrapper if agy is present
+# Install agy and antigravity smart supervisor wrapper
 AGY_BIN="${HOME}/.local/bin/agy"
 AGY_REAL="${HOME}/.local/bin/agy.real"
-AGY_TUI="${HOME}/.local/bin/agy-tui"
+ANTIGRAVITY_BIN="${HOME}/.local/bin/antigravity"
 
 mkdir -p "${HOME}/.local/bin"
 
-cat << 'EOF_AGYTUI' > /tmp/agy-tui-wrapper
+# If agy is an ELF binary, move it to agy.real
+if [ -f "$AGY_BIN" ] && file "$AGY_BIN" | grep -q "ELF"; then
+    mv -f "$AGY_BIN" "$AGY_REAL"
+fi
+
+cat << 'EOF_AGY' > /tmp/agy-wrapper
 #!/usr/bin/env python3
 """
-agy-tui: Antigravity TUI Interactive Launcher with Real-Time Grey Ghost-Text Autocomplete,
-Tab/Arrow Completion, and Levenshtein Typo Spellchecking.
+Antigravity Launcher with Integrated Real-Time Predictive Autocomplete,
+Grey Ghost-Text Suggestions, Tab/Arrow Completion, and Typo Spellchecking.
 """
 
 import os
 import sys
 
-SCRIPT = os.path.expanduser("~/.gemini/config/plugins/tui-autocomplete/scripts/tui_autocorrect.py")
+SCRIPT = os.path.expanduser("~/.gemini/config/plugins/antigravity-tui-autocorrect-spellcheck-suggest/scripts/tui_autocorrect.py")
+if not os.path.exists(SCRIPT):
+    SCRIPT = os.path.expanduser("~/.gemini/config/plugins/tui-autocomplete/scripts/tui_autocorrect.py")
+
 REAL_AGY = os.path.expanduser("~/.local/bin/agy.real")
-
 if not os.path.exists(REAL_AGY):
-    REAL_AGY = os.path.expanduser("~/.local/bin/agy")
+    # Fallback to system agy
+    REAL_AGY = "/usr/local/bin/agy"
 
-# If non-interactive or print mode or no tty, exec real agy directly
+# Fast-path: non-interactive or bypass arguments directly exec real binary
 if not sys.stdin.isatty() or not sys.stdout.isatty():
     os.execv(REAL_AGY, [REAL_AGY] + sys.argv[1:])
 
@@ -144,20 +158,12 @@ mod = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(mod)
 
 mod.run_pty_supervisor([REAL_AGY] + sys.argv[1:])
-EOF_AGYTUI
-chmod +x /tmp/agy-tui-wrapper
-mv /tmp/agy-tui-wrapper "${AGY_TUI}"
-echo -e "    ${GREEN}✓ Installed AGY TUI Launcher:${RESET} ${AGY_TUI}"
-
-if [ -f "$AGY_BIN" ]; then
-    # Check if agy is an ELF binary and agy.real does not exist yet
-    if file "$AGY_BIN" | grep -q "ELF"; then
-        echo -e "${CYAN}>>> Wrapping binary agy with smart supervisor...${RESET}"
-        ln "$AGY_BIN" "$AGY_REAL" 2>/dev/null || cp "$AGY_BIN" "$AGY_REAL"
-        cp -f "${AGY_TUI}" "$AGY_BIN"
-        echo -e "    ${GREEN}✓ Enhanced AGY TUI Supervisor:${RESET} ${AGY_BIN}"
-    fi
-fi
+EOF_AGY
+chmod +x /tmp/agy-wrapper
+mv /tmp/agy-wrapper "${AGY_BIN}"
+ln -sf "${AGY_BIN}" "${ANTIGRAVITY_BIN}"
+ln -sf "${AGY_BIN}" "${HOME}/.local/bin/agy-tui" 2>/dev/null || true
+echo -e "    ${GREEN}✓ Configured Commands:${RESET} ${AGY_BIN} and ${ANTIGRAVITY_BIN}"
 
 echo -e "\n${GREEN}================================================================${RESET}"
 echo -e "${GREEN} 🎉 ANTIGRAVITY TUI AUTOCORRECT, SPELL CHECKER & SUGGESTIVE TEXT ENGINE INSTALLED!${RESET}"
@@ -165,8 +171,8 @@ echo -e "${GREEN}===============================================================
 echo -e "Features active:"
 echo -e "  • Antigravity Plugin:  ${PLUGIN_DIR}"
 echo -e "  • Agent Skill:         ${SKILLS_DIR}"
-echo -e "  • Terminal CLI Tools:  ${CLI_TARGET}, antigravity-tui-autocorrect, agy-autocorrect"
-echo -e "  • AGY TUI Supervisor:  ${AGY_TUI} -> ${AGY_BIN}"
+echo -e "  • Direct Commands:     agy, antigravity"
+echo -e "  • Fast Spellchecker:   tui-autocorrect, agy-autocorrect"
 echo -e ""
 echo -e "Quick Test:"
 echo -e "  ${PURPLE}antigravity-tui-autocorrect tehn antigravty autocompleate suod reusme${RESET}"

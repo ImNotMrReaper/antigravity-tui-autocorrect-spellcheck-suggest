@@ -28,6 +28,9 @@ VOCAB_DB_PATH = Path.home() / ".config" / "reaper-notes" / "user_vocabulary.db"
 
 # Exhaustive dictionary of system, developer, Linux, and prompt vocabulary
 COMMON_KEYWORDS = [
+    # Slash Commands
+    "/voice", "/link", "/senpai", "/inbox", "/goal", "/plan", "/grill-me",
+    "/boost", "/learn", "/deepresearch", "/browser", "/schedule", "/teamwork-preview",
     # System, Antigravity & AI
     "antigravity", "agy", "senpai", "reaper", "cortex", "hermes", "subagent",
     "autocomplete", "autocorrect", "suggestive", "terminal", "session", "prompt",
@@ -314,17 +317,26 @@ class AgyPtySupervisor:
 
     def _clear_ghost_screen(self):
         if self.active_ghost:
-            spaces = " " * len(self.active_ghost)
-            sys.stdout.buffer.write(f"\0337{spaces}\0338".encode("utf-8"))
-            sys.stdout.buffer.flush()
+            # ANSI: Save cursor (\033[s), clear from cursor to end of line (\033[K), restore cursor (\033[u)
+            # This does not insert blank spaces and avoids any terminal buffer damage or line-wrap scrolls.
+            try:
+                sys.stdout.buffer.write(b"\033[s\033[K\033[u")
+                sys.stdout.buffer.flush()
+            except Exception:
+                pass
             self.active_ghost = ""
 
     def _render_ghost_screen(self, ghost: str):
-        if ghost != self.active_ghost:
-            self._clear_ghost_screen()
-            self.active_ghost = ghost
-            sys.stdout.buffer.write(f"\0337\033[90m{ghost}\033[0m\0338".encode("utf-8"))
+        if not ghost or ghost == self.active_ghost:
+            return
+        self._clear_ghost_screen()
+        self.active_ghost = ghost
+        try:
+            # Save cursor, render dim grey ghost text (\033[90m), restore cursor
+            sys.stdout.buffer.write(f"\033[s\033[90m{ghost}\033[0m\033[u".encode("utf-8"))
             sys.stdout.buffer.flush()
+        except Exception:
+            pass
 
     def run(self):
         if not sys.stdin.isatty() or not sys.stdout.isatty():
@@ -334,7 +346,7 @@ class AgyPtySupervisor:
         self.orig_termios = termios.tcgetattr(sys.stdin.fileno())
         self.master_fd, slave_fd = pty.openpty()
 
-        # Copy terminal window size
+        # Copy initial terminal window size from stdin to master_fd
         try:
             winsize = fcntl.ioctl(sys.stdin.fileno(), termios.TIOCGWINSZ, b"\x00" * 8)
             fcntl.ioctl(self.master_fd, termios.TIOCSWINSZ, winsize)
@@ -344,7 +356,10 @@ class AgyPtySupervisor:
         def sigwinch_handler(signum, frame):
             try:
                 ws = fcntl.ioctl(sys.stdin.fileno(), termios.TIOCGWINSZ, b"\x00" * 8)
-                fcntl.ioctl(self.master_fd, termios.TIOCSWINSZ, ws)
+                if self.master_fd is not None:
+                    fcntl.ioctl(self.master_fd, termios.TIOCSWINSZ, ws)
+                if self.child_pid:
+                    os.kill(self.child_pid, signal.SIGWINCH)
             except Exception:
                 pass
 
@@ -355,10 +370,16 @@ class AgyPtySupervisor:
             # Child process: runs agy under synthetic PTY
             os.close(self.master_fd)
             os.setsid()
+            # Acquire slave_fd as the controlling terminal
+            try:
+                fcntl.ioctl(slave_fd, termios.TIOCSCTTY, 0)
+            except Exception:
+                pass
             os.dup2(slave_fd, 0)
             os.dup2(slave_fd, 1)
             os.dup2(slave_fd, 2)
-            os.close(slave_fd)
+            if slave_fd > 2:
+                os.close(slave_fd)
             try:
                 os.execvp(self.command[0], self.command)
             except Exception as e:
@@ -374,6 +395,14 @@ class AgyPtySupervisor:
         finally:
             self._cleanup()
 
+        # Wait for child process termination
+        if self.child_pid:
+            try:
+                _, status = os.waitpid(self.child_pid, 0)
+                sys.exit(os.WEXITSTATUS(status) if os.WIFEXITED(status) else 1)
+            except Exception:
+                sys.exit(0)
+
     def _cleanup(self):
         self._clear_ghost_screen()
         if self.orig_termios:
@@ -388,15 +417,13 @@ class AgyPtySupervisor:
                 pass
 
     def _event_loop(self):
-        pending_ghost_render = False
-
         while True:
             try:
                 rlist, _, _ = select.select([sys.stdin.fileno(), self.master_fd], [], [])
             except (InterruptedError, select.error):
                 continue
 
-            # 1. Output from child (agy) to screen
+            # 1. Output from child (agy) to screen - stream untouched at line rate
             if self.master_fd in rlist:
                 try:
                     data = os.read(self.master_fd, 4096)
@@ -407,18 +434,6 @@ class AgyPtySupervisor:
                     break
                 sys.stdout.buffer.write(data)
                 sys.stdout.buffer.flush()
-
-                if pending_ghost_render:
-                    if self.current_word and len(self.current_word) >= 2 and not self.in_slash:
-                        best = self.trie.get_best_completion(self.current_word)
-                        if best and len(best) > len(self.current_word):
-                            ghost = best[len(self.current_word):]
-                            self._render_ghost_screen(ghost)
-                        else:
-                            self._clear_ghost_screen()
-                    else:
-                        self._clear_ghost_screen()
-                    pending_ghost_render = False
 
             # 2. Input from user keyboard
             if sys.stdin.fileno() in rlist:
@@ -461,7 +476,9 @@ class AgyPtySupervisor:
                         if self.current_word:
                             self.current_word = self.current_word[:-1]
                             if len(self.current_word) >= 2 and not self.in_slash:
-                                pending_ghost_render = True
+                                best = self.trie.get_best_completion(self.current_word)
+                                if best and len(best) > len(self.current_word):
+                                    self._render_ghost_screen(best[len(self.current_word):])
                         continue
 
                     # Delimiter: Space, Enter, or Punctuation
@@ -485,10 +502,9 @@ class AgyPtySupervisor:
 
                     # Slash command trigger (/)
                     if b == ord("/"):
-                        if self.current_word == "":
-                            self.in_slash = True
                         self._clear_ghost_screen()
-                        self.current_word = ""
+                        self.current_word = "/"
+                        self.in_slash = True
                         os.write(self.master_fd, chunk)
                         continue
 
@@ -497,10 +513,11 @@ class AgyPtySupervisor:
                     if char.isalnum() or char in ("_", "-"):
                         self._clear_ghost_screen()
                         os.write(self.master_fd, chunk)
-                        if not self.in_slash:
-                            self.current_word += char
-                            if len(self.current_word) >= 2:
-                                pending_ghost_render = True
+                        self.current_word += char
+                        if len(self.current_word) >= 2:
+                            best = self.trie.get_best_completion(self.current_word)
+                            if best and len(best) > len(self.current_word):
+                                self._render_ghost_screen(best[len(self.current_word):])
                         continue
 
                     # Other single characters
@@ -539,14 +556,6 @@ class AgyPtySupervisor:
                     self.in_slash = False
                     os.write(self.master_fd, chunk)
                     continue
-
-        # Wait for child process termination
-        if self.child_pid:
-            try:
-                _, status = os.waitpid(self.child_pid, 0)
-                sys.exit(os.WEXITSTATUS(status) if os.WIFEXITED(status) else 1)
-            except Exception:
-                sys.exit(0)
 
 
 def run_pty_supervisor(cmd: List[str]):
