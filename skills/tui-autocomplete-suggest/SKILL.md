@@ -6,10 +6,10 @@ description: >-
   spellchecking/autocorrection across terminal sessions and text editor interfaces.
 ---
 
-# Antigravity TUI Autocomplete, Suggestive Text & Autocorrect Engine
+# Antigravity TUI Autocorrect, Spell Checker & Suggestive Text Engine
 
 ## 1. Overview
-This skill provides bidirectional typing assistance, fuzzy spellchecking, and inline predictive completion for Antigravity interactive terminal sessions and pair-programming workflows. It prevents typo drops, accelerates slash command execution, and provides automatic dictionary correction for technical vocabulary.
+This skill provides bidirectional typing assistance, fuzzy Levenshtein spellchecking, grey ghost-text suggestive text, and inline predictive completion for Antigravity interactive terminal sessions and pair-programming workflows. It prevents typo drops, accelerates slash command execution, and provides automatic dictionary correction for technical vocabulary.
 
 ---
 
