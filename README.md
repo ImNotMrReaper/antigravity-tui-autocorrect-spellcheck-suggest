@@ -3,14 +3,17 @@
 Fast inline predictive autosuggestion, Levenshtein distance spellchecking/autocorrect, and slash command auto-expansion for Antigravity interactive CLI and terminal pair-programming sessions.
 
 ## Features
-- **Inline Ghost-Text Prediction:** Evaluates typed sequences against technical dictionaries, codebase symbols, and command templates.
-- **Fuzzy Levenshtein Autocorrect:** Corrects frequent slips (`tehn` -> `then`, `antigravty` -> `antigravity`, `autocompleate` -> `autocomplete`, `suod` -> `sudo`, `reusme` -> `resume`).
+- **Inline Grey Ghost-Text Prediction (ble.sh Parity):** Evaluates typed sequences in real time and renders low-contrast dimmed ghost text ahead of the cursor.
+- **Tab & Right Arrow Completion:** Instant single-keystroke acceptance of suggested text directly into the active prompt buffer.
+- **Real-Time Typo Spellchecker:** Automatically detects and replaces common spelling errors (`autocompleat` -> `autocomplete`, `seuestive` -> `suggestive`, `termail` -> `terminal`, `cheacher` -> `checker`, `tehn` -> `then`, `suod` -> `sudo`) on Space, Enter, or punctuation.
+- **Interactive PTY Supervisor (`agy-tui` / `agy`):** Transparent zero-latency PTY wrapper intercepting keystrokes and handling terminal window resizing (`SIGWINCH`), Ctrl+C interrupts, and clipboard pastes smoothly.
+- **Persistent Vocabulary Synchronization:** Shared SQLite database (`~/.config/reaper-notes/user_vocabulary.db`) tracks frequency and recency across `reaper-notes`, terminal commands, and Antigravity TUI sessions.
 - **Slash Command Expansion:** Instant completion for Antigravity slash directives (`/link`, `/voice`, `/senpai`, `/inbox`, `/goal`, `/plan`, `/grill-me`, `/boost`).
-- **Sub-5ms Execution:** Pure Python zero-dependency engine suitable for interactive terminal environments.
+- **Sub-1ms Execution:** Pure Python zero-dependency engine suitable for interactive terminal environments.
 
 ## 🚀 Quick Start (1-Line Installation)
 
-Install the Antigravity plugin, agent skill, and terminal CLI tool with a single command:
+Install the Antigravity plugin, agent skill, terminal CLI tool, and AGY TUI supervisor with a single command:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/ImNotMrReaper/tui-autocomplete/main/install.sh | bash
@@ -23,10 +26,21 @@ cd tui-autocomplete
 ./install.sh
 ```
 
+## Interactive AGY TUI Usage
+Launch Antigravity CLI directly or resume your session with full inline autocomplete:
+```bash
+agy -c
+# Or via explicit launcher:
+agy-tui -c
+```
+- Type any word stem (e.g. `autocom` or `antigrav`) to see grey ghost text ahead of the cursor.
+- Press <kbd>Tab</kbd> or <kbd>→</kbd> to accept the suggestion.
+- Type any typo (e.g. `autocompleat`, `termail`, `cheacher`) and hit <kbd>Space</kbd> or <kbd>Enter</kbd> to watch it instantly autocorrect!
+
 ## Testing CLI Autocorrect
 ```bash
-python3 scripts/tui_autocorrect.py tehn antigravty autocompleate suod reusme
-# Output: then antigravity autocomplete sudo resume
+tui-autocorrect autocompleat seuestive termail cheacher tehn suod reusme
+# Output: autocomplete suggestive terminal checker then sudo resume
 ```
 
 ## License

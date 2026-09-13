@@ -102,6 +102,59 @@ else
 fi
 echo -e "    ${GREEN}✓ Installed CLI Wrapper:${RESET} ${CLI_TARGET}"
 
+# Install agy-tui and agy supervisor wrapper if agy is present
+AGY_BIN="${HOME}/.local/bin/agy"
+AGY_REAL="${HOME}/.local/bin/agy.real"
+AGY_TUI="${HOME}/.local/bin/agy-tui"
+
+mkdir -p "${HOME}/.local/bin"
+
+cat << 'EOF_AGYTUI' > /tmp/agy-tui-wrapper
+#!/usr/bin/env python3
+"""
+agy-tui: Antigravity TUI Interactive Launcher with Real-Time Grey Ghost-Text Autocomplete,
+Tab/Arrow Completion, and Levenshtein Typo Spellchecking.
+"""
+
+import os
+import sys
+
+SCRIPT = os.path.expanduser("~/.gemini/config/plugins/tui-autocomplete/scripts/tui_autocorrect.py")
+REAL_AGY = os.path.expanduser("~/.local/bin/agy.real")
+
+if not os.path.exists(REAL_AGY):
+    REAL_AGY = os.path.expanduser("~/.local/bin/agy")
+
+# If non-interactive or print mode or no tty, exec real agy directly
+if not sys.stdin.isatty() or not sys.stdout.isatty():
+    os.execv(REAL_AGY, [REAL_AGY] + sys.argv[1:])
+
+for arg in sys.argv[1:]:
+    if arg in ("-p", "--print", "--help", "-h", "-v", "--version", "update", "mcp", "mic-serve"):
+        os.execv(REAL_AGY, [REAL_AGY] + sys.argv[1:])
+
+# Interactive TTY session: launch through tui_autocorrect PTY supervisor
+import importlib.util
+spec = importlib.util.spec_from_file_location("tui_autocorrect", SCRIPT)
+mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mod)
+
+mod.run_pty_supervisor([REAL_AGY] + sys.argv[1:])
+EOF_AGYTUI
+chmod +x /tmp/agy-tui-wrapper
+mv /tmp/agy-tui-wrapper "${AGY_TUI}"
+echo -e "    ${GREEN}✓ Installed AGY TUI Launcher:${RESET} ${AGY_TUI}"
+
+if [ -f "$AGY_BIN" ]; then
+    # Check if agy is an ELF binary and agy.real does not exist yet
+    if file "$AGY_BIN" | grep -q "ELF"; then
+        echo -e "${CYAN}>>> Wrapping binary agy with smart supervisor...${RESET}"
+        ln "$AGY_BIN" "$AGY_REAL" 2>/dev/null || cp "$AGY_BIN" "$AGY_REAL"
+        cp -f "${AGY_TUI}" "$AGY_BIN"
+        echo -e "    ${GREEN}✓ Enhanced AGY TUI Supervisor:${RESET} ${AGY_BIN}"
+    fi
+fi
+
 echo -e "\n${GREEN}================================================================${RESET}"
 echo -e "${GREEN} 🎉 TUI AUTOCOMPLETE ENGINE INSTALLED SUCCESSFULLY!${RESET}"
 echo -e "${GREEN}================================================================${RESET}"
@@ -109,6 +162,7 @@ echo -e "Features active:"
 echo -e "  • Antigravity Plugin:  ${PLUGIN_DIR}"
 echo -e "  • Agent Skill:         ${SKILLS_DIR}"
 echo -e "  • Terminal CLI Tool:   ${CLI_TARGET}"
+echo -e "  • AGY TUI Supervisor:  ${AGY_TUI} -> ${AGY_BIN}"
 echo -e ""
 echo -e "Quick Test:"
 echo -e "  ${PURPLE}tui-autocorrect tehn antigravty autocompleate suod reusme${RESET}"

@@ -25,5 +25,12 @@ if [ -f "/usr/local/bin/tui-autocorrect" ]; then
     fi
 fi
 rm -f "${HOME}/.local/bin/tui-autocorrect"
+rm -f "${HOME}/.local/bin/agy-tui"
+
+# Restore original agy binary if wrapped
+if [ -f "${HOME}/.local/bin/agy.real" ]; then
+    mv -f "${HOME}/.local/bin/agy.real" "${HOME}/.local/bin/agy"
+    echo -e "    ${GREEN}✓ Restored original AGY binary:${RESET} ${HOME}/.local/bin/agy"
+fi
 
 echo -e "${GREEN}✓ Antigravity TUI Autocomplete cleanly uninstalled.${RESET}\n"
